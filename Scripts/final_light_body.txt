@@ -1,0 +1,5 @@
+def run():
+ root='/Game/CompoundBreach/Maps/L_CompoundEscape.L_CompoundEscape:PersistentLevel.'
+ props(ref(root+'DirectionalLight_0.LightComponent0'),{'castShadows':True,'bCastCloudShadows':True,'cloudShadowStrength':5,'cloudShadowOnSurfaceStrength':1})
+ props(ref(root+'SkyLight_0.SkyLightComponent0'),{'intensity':2})
+ return {'saved':call('asset.AssetTools','save_assets',asset_paths=[]),'rails':[{'label':call('actor.ActorTools','get_label',actor=a),'actor':a,'t':call('actor.ActorTools','get_actor_transform',actor=a)} for a in call('scene.SceneTools','find_actors',name='Rail',tag='',collision_channels=[]) if 'Repair' not in call('actor.ActorTools','get_label',actor=a)]}

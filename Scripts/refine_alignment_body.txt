@@ -1,0 +1,20 @@
+def run():
+    for a in call('scene.SceneTools','find_actors',name='EastAccessRamp_',tag='',collision_channels=[]):
+        t=call('actor.ActorTools','get_actor_transform',actor=a)
+        t['location']['y']-=122
+        call('actor.ActorTools','set_actor_transform',actor=a,xform=t)
+    for a in call('scene.SceneTools','find_actors',name='CatwalkSafetyRail',tag='',collision_channels=[]):
+        call('actor.ActorTools','set_actor_transform',actor=a,xform={'location':dict(call('actor.ActorTools','get_actor_transform',actor=a)['location'],z=401.75)})
+    for a in call('scene.SceneTools','find_actors',name='BridgeSafetyRail',tag='',collision_channels=[]):
+        t=call('actor.ActorTools','get_actor_transform',actor=a)
+        if t['location']['y']<-500:t['location']['z']=-20000
+        else:t['location']['z']=401
+        call('actor.ActorTools','set_actor_transform',actor=a,xform=t)
+    mesh('BridgeRail_StairOpeningLeft',(35,-638,401),(910,14,150),'Yellow')
+    mesh('BridgeRail_StairOpeningRight',(945,-638,401),(190,14,150),'Yellow')
+    root='/Game/CompoundBreach/Maps/L_CompoundEscape.L_CompoundEscape:PersistentLevel.'
+    props(ref(root+'DirectionalLight_0.LightComponent0'),{'intensity':1000})
+    props(ref(root+'SkyLight_0.SkyLightComponent0'),{'intensity':2})
+    for a in call('scene.SceneTools','find_actors',name='IndustrialMoodExposure',tag='',collision_channels=[]):
+        props(a,{'settings':{'bOverride_AutoExposureMinBrightness':True,'bOverride_AutoExposureMaxBrightness':True,'autoExposureMinBrightness':6.5,'autoExposureMaxBrightness':6.5,'bOverride_AutoExposureBias':True,'autoExposureBias':0}})
+    return {'saved':call('asset.AssetTools','save_assets',asset_paths=[])}

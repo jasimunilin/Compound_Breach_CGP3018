@@ -1,0 +1,30 @@
+# Unreal Engine generated / cache directories
+Saved/
+Intermediate/
+DerivedDataCache/
+Binaries/
+
+# Packaged builds (upload via GitHub Releases instead)
+build/
+Build/
+*.zip
+*.7z
+*.rar
+
+# Visual Studio / IDE files
+.vs/
+.vscode/
+*.sln
+*.suo
+*.opensdf
+*.sdf
+*.VC.db
+*.VC.opendb
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# OS metadata
+.DS_Store
+Thumbs.db

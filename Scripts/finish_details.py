@@ -1,0 +1,58 @@
+import json
+def call(group,method,**kw):return execute_tool('editor_toolset.toolsets.'+group+'.'+method,json.dumps(kw)).get('returnValue')
+def ref(s):return {'refPath':s}
+def v(x,y,z):return {'x':x,'y':y,'z':z}
+def props(obj,values):
+    assert call('object.ObjectTools','set_properties',instance=obj,values=json.dumps(values))
+def mesh(name,loc,size,mat='Steel',shape='Cube',yaw=0,pitch=0,movable=False,tag=None):
+    a=call('scene.SceneTools','add_to_scene_from_asset',asset_path='/Engine/BasicShapes/'+shape,name=name,xform={'location':v(*loc),'scale':v(*[s/100 for s in size]),'rotation':{'pitch':pitch,'yaw':yaw,'roll':0}})
+    c=call('actor.ActorTools','get_components',actor=a,component_type=ref('/Script/Engine.StaticMeshComponent'))[0]
+    vals={'overrideMaterials':[ref('/Game/CompoundBreach/Materials/MI_'+mat+'.MI_'+mat)]}
+    if movable:vals['mobility']='Movable'
+    props(c,vals)
+    if tag:props(a,{'tags':[tag]})
+    return a
+def sign(name,text,loc,yaw=0,size=45):
+    a=call('scene.SceneTools','add_to_scene_from_class',actor_type=ref('/Script/Engine.TextRenderActor'),name=name,xform={'location':v(*loc),'rotation':{'pitch':0,'yaw':yaw,'roll':0}})
+    c=call('actor.ActorTools','get_components',actor=a,component_type=ref('/Script/Engine.TextRenderComponent'))[0]
+    props(c,{'text':text,'worldSize':size,'horizontalAlignment':'EHTA_Center','textRenderColor':{'r':0.85,'g':0.95,'b':1,'a':1}})
+    return a
+def run():
+    # Guardrails leave openings at all walkway junctions.
+    for x,segments in [(-738,[(-2700,-1400),(-1000,1600),(2000,2400)]),(-462,[(-2700,-700),(-300,2400)])]:
+        for a,b in segments:
+            mesh('CatwalkSafetyRail',(x,(a+b)/2,540),(14,b-a,150),'Yellow')
+    for x in [-600,250,1000]:
+        mesh('CatwalkSupport',(x,-500,215),(45,45,430),'Steel')
+    for y in [-2500,-1700,600,1500,2300]:
+        mesh('CatwalkSupport',(-600,y,215),(45,45,430),'Steel')
+    for y in [-638,-362]:
+        mesh('BridgeSafetyRail',(310,y,540),(1460,14,150),'Yellow')
+    # Crates and drums stay outside the main circulation paths.
+    for x,y in [(-2800,-2800),(-2500,-2800),(-2800,500),(2700,1600),(2700,1900),(300,2600)]:
+        mesh('ShippingCrate',(x,y,90),(170,170,180),'Rust')
+        mesh('CrateBand',(x,y,94),(176,30,190),'Steel')
+    for x,y in [(2200,2200),(2400,2200),(2300,2400),(-2300,-600),(-2100,-600),(-2700,2900)]:
+        mesh('ChemicalDrum',(x,y,65),(85,85,130),'Blue','Cylinder')
+        mesh('DrumRim',(x,y,130),(90,90,8),'Steel','Cylinder')
+    for x in [200,1300,2400]:
+        mesh('TankFeedPipe',(x,-1900,150),(55,55,1300),'Teal','Cylinder',pitch=90)
+    mesh('PipeManifold',(1300,-1500,150),(55,55,2400),'Teal','Cylinder',yaw=90,pitch=90)
+    for x in [-2200,-1400]:
+        mesh('ProcessingVessel',(x,-1750,220),(220,220,420),'Steel','Cylinder')
+        mesh('VesselCap',(x,-1750,440),(230,230,25),'Teal','Cylinder')
+    for y in [-650,250]:
+        mesh('GeneratorVent',(2230,y,180),(20,180,140),'Dark')
+    for x in [-2500,-2200,-1900]:
+        mesh('ServerCabinet',(x,2400,170),(200,150,340),'Steel')
+        mesh('ServerPanel',(x,2318,190),(170,10,270),'Dark')
+    for y in [-2600,-1800,-1000,0,1000,2000,2800]:
+        mesh('ServiceRoadMark',(400,y,2),(18,260,3),'Yellow')
+    sign('GroundDirections','A  PROCESSING     B  GENERATOR<br>C  CONTROL     EXIT  SOUTH',(400,400,210),-90,35)
+    sign('ExitDirections','EXIT / SOUTH GATE',(1200,2800,200),-90,45)
+    # Correct the two signs that were facing away from the approach.
+    for name in ['BreachSign','KeycardLabel']:
+        for a in call('scene.SceneTools','find_actors',name=name,tag='',collision_channels=[]):
+            call('actor.ActorTools','set_actor_transform',actor=a,xform={'rotation':{'pitch':0,'yaw':-90,'roll':0}})
+    return {'saved':call('asset.AssetTools','save_assets',asset_paths=[])}
+
